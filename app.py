@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, session, request, jsonify, render_template,  redirect, url_for
 from flask_pymongo import PyMongo, ObjectId
 from credentials import settings, credenciais
 
