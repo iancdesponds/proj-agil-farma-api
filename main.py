@@ -3,7 +3,6 @@ from flask_pymongo import PyMongo
 import bcrypt
 from credentials import settings, credenciais
 
-
 app = Flask("Farmacia")
 app.secret_key = 'deena'  # Substitua por uma chave secreta forte.
 app.config["MONGO_URI"] = f"mongodb+srv://{credenciais['user_mongo']}:{credenciais['password_mongo']}@{settings['host']}/{settings['database']}?retryWrites=true&w=majority"
@@ -19,17 +18,20 @@ def home():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.json['username']
         users = mongo.db.usuarios
-        users.insert_one({'username': username})
-        session['username'] = username
+        user = users.find_one({'username': username})
+        new_user = users.insert_one({'username': username})
+        # session['username'] = username
+        #print(session)
+        print('d')
         return redirect(url_for('home')), 201
     return 'Formulário de Registro'
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.json['username']
         users = mongo.db.usuarios
         user = users.find_one({'username': username})
         if username:
@@ -52,7 +54,7 @@ def produtos():
     
     elif request.method == 'POST':
         try:
-            request_data = request.form
+            request_data = request.json
 
             if 'marca_produto' not in request_data:
                 return {'ERRO': 'marca do produto não informada'}, 400
@@ -82,8 +84,14 @@ def produtos():
         except:
             return {'ERRO': 'Erro ao tentar adicionar produto na base de dados'}, 500
 
-
+@app.route('/deletar/<nome_produto>', methods=['DELETE'])
+def deleta_pedidos(nome_produto):
+    try:
+        mongo.db.products.delete_one({"nome_produto": nome_produto})
+        return jsonify({"message": f"Produto '{nome_produto}' deletado com sucesso!"}), 200
+    except Exception as e:
+        return jsonify({"message": "Erro ao deletar produto: " + str(e)}), 500
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True)  
