@@ -118,8 +118,50 @@ def atualiza_pedidos():
     except Exception as e:
         return jsonify({"message": "Erro ao atualizar produto: " + str(e)}), 500
 
+@app.route('/estoque', methods=['GET', 'POST'])
+def estoque():
+    if request.method == 'GET':
+        try:
+            estoque = list(mongo.db.estoque.find({},{'dados_produto':1, 'quantidade':1, 'data_de_validade':1, 'preco_venda':1, 'custo_por_unidade':1, 'fornecedor':1, '_id':0}))
+            estoque_list = [{"Produto":produto['dados_produto'], "Quantidade":produto['quantidade'], "Data de Validade":produto['data_de_validade'], "Fornecedor":produto['fornecedor'], "Custo por Unidade":produto['custo_por_unidade'], "Preço de Venda":produto['preco_venda']} for produto in estoque]
+        except:
+            estoque_list = []
+        return jsonify({"Estoque":estoque_list}), 200
+    elif request.method == 'POST':
+        try:
+            request_data = request.json
 
+            if 'dados_produto' not in request_data:
+                return {'ERRO': 'dados do produto não informados'}, 400
+            dados_produto = request_data['dados_produto']
 
+            if 'fornecedor' not in request_data:
+                return {'ERRO': 'fornecedor do produto não informado'}, 400
+            fornecedor_produto = request_data['fornecedor']
+            
+            if 'quantidade' not in request_data:
+                return {'ERRO': 'quantidade do produto não informada'}, 400
+            quantidade_produto = request_data['quantidade']
+            
+            if 'data_de_validade' not in request_data: 
+                return {'ERRO': 'data de validade do produto não informada'}, 400
+            data_validade_produto = request_data['data_de_validade']
+
+            if 'custo_por_unidade' not in request_data:
+                return {'ERRO': 'custo por unidade do produto não informado'}, 400
+            custo_produto = request_data['custo_por_unidade']
+            
+            if 'preco_venda' not in request_data:
+                return {'ERRO': 'preço de venda do produto não informado'}, 400
+            preco_venda_produto = request_data['preco_venda']
+            
+            data_produto_novo = {'dados_produto': dados_produto, 'fornecedor': fornecedor_produto, 'quantidade': quantidade_produto, 'data_de_validade': data_validade_produto, 'custo_por_unidade': custo_produto, 'preco_venda': preco_venda_produto}
+            
+            mongo.db.estoque.insert_one(data_produto_novo)
+            return {"SUCESSO" :'Produto Adicionado com sucesso!'}, 201
+        
+        except:
+            return {'ERRO': 'Erro ao tentar adicionar produto na base de dados'}, 500
 
 if __name__ == '__main__':
     app.run(debug=True)  
