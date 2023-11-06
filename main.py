@@ -84,7 +84,7 @@ def produtos():
         except:
             return {'ERRO': 'Erro ao tentar adicionar produto na base de dados'}, 500
 
-@app.route('/deletar/<nome_produto>', methods=['DELETE'])
+@app.route('/produtos/<nome_produto>', methods=['DELETE'])
 def deleta_pedidos(nome_produto):
     try:
         mongo.db.produtos.delete_one({"nome_produto": nome_produto})
@@ -92,24 +92,24 @@ def deleta_pedidos(nome_produto):
     except Exception as e:
         return jsonify({"message": "Erro ao deletar produto: " + str(e)}), 500
 
-@app.route('/editar', methods=['PUT'])
+@app.route('/produtos', methods=['PUT'])
 def atualiza_pedidos():
     data = request.json
-
     try:
-        nome_produto = data['nome_produto']
-        marca_produto = data['marca_produto']
-        descricao_produto = data["descricao_produto"]
-        quantidade_por_unidade_produto = data["quantidade_por_unidade_produto"]
-        notificacao_baixo_estoque_produto = data["notificacao_baixo_estoque_produto"]
-
-
+        
+        nome_produto = data["nome_produto_update"]
+        marca_produto = data["marca_produto_update"]
+        descricao_produto = data["descricao_produto_update"]
+        quantidade_por_unidade_produto = data["quantidade_por_unidade_produto_update"]
+        notificacao_baixo_estoque_produto = data["notificacao_baixo_estoque_produto_update"]
+        
         resultado = mongo.db.produtos.update_one(
-            {"nome_produto": nome_produto},
-            {"$set": {"marca_produto": marca_produto}},
-            {"$set": {"descricao_produto": descricao_produto}},
-            {"$set": {"quantidade_por_unidade_produto": quantidade_por_unidade_produto}},
-            {"$set": {"notificacao_baixo_estoque_produto": notificacao_baixo_estoque_produto}}
+            {"nome_produto": nome_produto}, 
+            {"$set": {"marca_produto": marca_produto, 
+                      "descricao_produto": descricao_produto, 
+                      "quantidade_por_unidade_produto": quantidade_por_unidade_produto, 
+                      "notificacao_baixo_estoque_produto": notificacao_baixo_estoque_produto}
+            }
         )
         if resultado.modified_count > 0:
             return jsonify({"message": f"Preço do produto '{nome_produto}' atualizado com sucesso!"}), 200
