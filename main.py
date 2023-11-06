@@ -87,10 +87,38 @@ def produtos():
 @app.route('/deletar/<nome_produto>', methods=['DELETE'])
 def deleta_pedidos(nome_produto):
     try:
-        mongo.db.products.delete_one({"nome_produto": nome_produto})
+        mongo.db.produtos.delete_one({"nome_produto": nome_produto})
         return jsonify({"message": f"Produto '{nome_produto}' deletado com sucesso!"}), 200
     except Exception as e:
         return jsonify({"message": "Erro ao deletar produto: " + str(e)}), 500
+
+@app.route('/editar', methods=['PUT'])
+def atualiza_pedidos():
+    data = request.json
+
+    try:
+        nome_produto = data['nome_produto']
+        marca_produto = data['marca_produto']
+        descricao_produto = data["descricao_produto"]
+        quantidade_por_unidade_produto = data["quantidade_por_unidade_produto"]
+        notificacao_baixo_estoque_produto = data["notificacao_baixo_estoque_produto"]
+
+
+        resultado = mongo.db.produtos.update_one(
+            {"nome_produto": nome_produto},
+            {"$set": {"marca_produto": marca_produto}},
+            {"$set": {"descricao_produto": descricao_produto}},
+            {"$set": {"quantidade_por_unidade_produto": quantidade_por_unidade_produto}},
+            {"$set": {"notificacao_baixo_estoque_produto": notificacao_baixo_estoque_produto}}
+        )
+        if resultado.modified_count > 0:
+            return jsonify({"message": f"Preço do produto '{nome_produto}' atualizado com sucesso!"}), 200
+        else:
+            return jsonify({"message": "Nenhum produto foi atualizado."}), 400
+    except Exception as e:
+        return jsonify({"message": "Erro ao atualizar produto: " + str(e)}), 500
+
+
 
 
 if __name__ == '__main__':
