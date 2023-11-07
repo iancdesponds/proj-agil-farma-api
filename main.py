@@ -212,7 +212,7 @@ def vendas():
     if request.method == 'GET':
         try:
             vendas = list(mongo.db.vendas.find({},{'dados_produto':1, 'quantidade':1, 'data_de_validade':1, 'preco_venda':1, 'custo_por_unidade':1, 'fornecedor':1, 'data_venda':1, '_id':0}))
-            vendas_list = [{"Produto":produto['dados_produto'], "Quantidade":produto['quantidade'], "Data de Validade":produto['data_de_validade'], "Fornecedor":produto['fornecedor'], "Custo por Unidade":produto['custo_por_unidade'], "Preço de Venda":produto['preco_venda']} for produto in vendas]
+            vendas_list = [{"Produto":produto['dados_produto'], "Quantidade":produto['quantidade'], "Data de Validade":produto['data_de_validade'], "Fornecedor":produto['fornecedor'], "Custo por Unidade":produto['custo_por_unidade'], "Preço de Venda":produto['preco_venda'], "Data da Venda":produto['data_venda']} for produto in vendas]
         except:
             vendas_list = []
         return jsonify({"Vendas":vendas_list}), 200
