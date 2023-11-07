@@ -9,34 +9,28 @@ app.config["MONGO_URI"] = f"mongodb+srv://{credenciais['user_mongo']}:{credencia
 mongo = PyMongo(app)
 
 
-@app.route('/')
-def home():
-    if 'username' in session:
-        return f'Bem-vindo, {session["username"]}! <a href="/logout">Sair</a>'
-    return 'Página inicial - <a href="/login">Login</a>'
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
         username = request.json['username']
+        senha = request.json['senha']
         users = mongo.db.usuarios
-        user = users.find_one({'username': username})
-        new_user = users.insert_one({'username': username})
-        # session['username'] = username
-        #print(session)
-        print('d')
-        return redirect(url_for('home')), 201
+        user = users.find_one({'username': username, 'senha': senha})
+        new_user = users.insert_one({'username': username, 'senha': senha})
+        return "Usuário registrado com sucesso!", 201
     return 'Formulário de Registro'
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.json['username']
+        senha = request.json['senha']
         users = mongo.db.usuarios
-        user = users.find_one({'username': username})
-        if username:
+        user = users.find_one({'username': username, 'senha': senha})
+        if username == user['username'] and senha == user['senha']:
             session['username'] = username
-            return redirect(url_for('home')), 200
+            return "Login realizado com sucesso!", 200
         return 'Usuário não encontrado!', 404
     return 'Formulário de Login'
 
