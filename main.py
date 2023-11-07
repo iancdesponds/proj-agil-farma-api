@@ -8,7 +8,9 @@ app.secret_key = 'deena'  # Substitua por uma chave secreta forte.
 app.config["MONGO_URI"] = f"mongodb+srv://{credenciais['user_mongo']}:{credenciais['password_mongo']}@{settings['host']}/{settings['database']}?retryWrites=true&w=majority"
 mongo = PyMongo(app)
 
-
+@app.route('/', methods=['GET'])
+def home():
+    return '<h1>Home Page - API</h1>', 200
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
